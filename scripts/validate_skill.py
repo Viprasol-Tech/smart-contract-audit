@@ -42,7 +42,11 @@ def parse_frontmatter(text: str) -> dict[str, str] | None:
             break
         if ":" in line:
             key, _, value = line.partition(":")
-            fm[key.strip()] = value.strip()
+            value = value.strip()
+            # A YAML-quoted scalar ("..." or '...') means its contents, not the quotes.
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            fm[key.strip()] = value
 
     if not closed:
         return None
